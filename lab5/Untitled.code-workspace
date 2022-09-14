@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"iostream": "cpp",
+			"ostream": "cpp",
+			"string": "cpp",
+			"vector": "cpp",
+			"iosfwd": "cpp",
+			"__split_buffer": "cpp",
+			"deque": "cpp",
+			"new": "cpp"
+		}
+	}
+}

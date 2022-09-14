@@ -1,0 +1,32 @@
+hmmm, I'm reposting this because I think I kind of get stuck on this...
+
+****design idea spoil warning*****
+
+
+
+
+
+
+
+
+
+
+
+
+
+So I'm thinking about an object oriented approach... so each node contains previous node and the current minimal cost. An array with index = city # stores current travel cost. We are given a starting node so we store it as cost 0 and previous node is itself, we then go on the neighbouring nodes. 
+
+
+
+
+As we visit each node recursively and keep the visited ones out of our to-be-visit list, we can update the cost and its previous node, if it's found to be more efficient through a new path.
+
+
+
+
+Eventually, we will end up on the destination node with an optimized cost to get to that node. We can then recursively call previous node to find the optimized path, starting from the destination to the start node. 
+
+
+
+
+And all these will take O(n). 
