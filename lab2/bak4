@@ -1,0 +1,337 @@
+#include <iostream>
+#include "hasht.h"
+
+
+//constructor and destructor
+hasht::hasht(){
+    //intialize the vector with size 0
+    hashtv.resize(0);
+}
+
+hasht::~hasht(){
+}
+
+
+void hasht::resizeinfo(long sizein){
+    size =sizein;
+    //intialize the vector with all entries=0
+    hashtv.resize(sizein);
+}
+
+void hasht::swapptr(info*& a, info*& b) {
+//reference: https://stackoverflow.com/questions/1826203/swapping-addresses-of-pointers-in-c/1826210
+//swap values, and pointers
+    info c = *a;
+    a-> phone= b->phone;
+    a->user=b->user;
+    a->next=b->next;
+    a->prev=b->prev;
+
+    b->phone=c.phone;
+    b->user=c.user;
+    b->next=c.next;
+    b->prev=c.prev;
+
+    info*cc=b;
+
+    b=a;
+    a=cc;
+}
+
+//double hashing
+void hasht::dh(long numin, string user){
+     long x= numin % size;
+     bool inserted=false;
+
+     //new element:
+     info* zz = new info(numin,user);
+
+     //double hashing 1: no collision
+     if (hashtv[x].phone==0 && inserted==false){
+
+ 
+
+        hashtv[x]=*zz;
+        //letting headint pointing to the array index address.
+         hashtv[x].prev=nullptr;
+         hashtv[x].next=nullptr;
+        cleanptr(zz);
+  
+       
+        inserted==true;
+ 
+        }
+       
+
+     //double hashing 2: collusion occurs, do h2(h1(n/m) mod m)), n= phone #, m= array size.
+      else{
+
+
+        long y= (numin/size);
+        long z= y % size;
+
+
+            if(z%2==0){
+                z++;    //if z is even, +1 to make it odd.
+            }
+
+
+
+
+            //case 1: the new position is not empty.
+                    if (hashtv[z].phone!=0 && inserted==false){
+
+                    //assigning a starting pointer in the hash table
+
+        
+                    info* hashtvp=&hashtv[z];
+            
+                    //validity check for repeating phone number
+
+                    //*************bool repeated=valid_check(hashtvp,zz);
+
+                    bool repeated= false;
+             
+     
+
+                        if(repeated==false) {
+          
+                        insert(hashtv[z],zz);
+
+                        cleanptr(zz);
+                        inserted==true;
+
+
+
+                        }
+                
+                
+                }
+
+            //case 2: the new position is empty.
+            
+            if (hashtv[z].phone==0 && inserted==false){
+
+
+
+                 hashtv[z]=*zz;
+
+                 zz->prev=nullptr;
+                 zz->next=nullptr;
+
+                 cleanptr(zz);
+
+                 inserted==true;
+
+            }
+   
+
+        }
+    
+    
+}
+
+//assign pointer to null and delete.
+void hasht::cleanptr(info* current) {
+    current=nullptr;
+    delete current;
+    }
+
+//checking if the number has already exist?
+bool hasht::valid_check(info* hashtvin, info* currentin){
+
+    //create a pointer to compare and loop through the chain:
+    info* compare= hashtvin;
+
+
+    bool repeated=false;
+
+    while(repeated== false && compare->phone!=0){
+        if (compare->phone==currentin->phone) {
+            repeated==true;
+         }
+
+        else{
+            //loop and compare the next element in the linked list.
+            compare=compare->next; 
+        }
+    }
+
+    cleanptr(compare);
+
+    return repeated; 
+
+}
+
+//inserting in a non-empty chain, use this when collision occurs and chain has to take place.
+void hasht::insert(info& hashtvin, info* z){
+
+
+
+     info* x = &hashtvin;
+
+
+      if(x->phone!=0) {
+
+        bool inserted= false;
+
+        while(inserted==false) {
+           
+           //assuming there are 2 elements in the chain to compare per while loop:
+
+                        //case 1 z>x;
+                        if(z->phone > x->phone  && inserted==false){
+                          
+                          //need to swat x and z
+                          swapptr(x,z); 
+                          //resetting next and prev pointers contain in them
+                          z->next=x->next;
+                          x->next=z;
+                          z->prev=x;
+
+
+                          // if z is the last element in the chain
+                          if(z->next==nullptr) {
+                            inserted=true;
+                          }
+                          //set x be the next elemet to compare
+                          else{
+                              //if z is in the right place, stop looping
+                            if (z->phone < z->next->phone) {
+                                 inserted=true;
+                            }
+                            //otherwise, compare the next element
+                            else {x=z->next;
+                            }
+                            }
+                            
+                         } // end of case 1 x>z;
+
+                            //case 2  z<x, catching looping case from case 1 + initial case where x is the first elemet 
+
+                            if(x->phone > z->phone   && inserted==false){
+                                
+                                swapptr(x,z); 
+                                z->next=x;
+                                z->prev=x->prev;
+                                x->prev=z;
+
+                                if(x->next!=nullptr) {
+
+                                }
+                   
+
+                                if(x->prev!=nullptr) {
+                                 //need to swat x and z
+                                 swapptr(x,z); 
+
+                                 z->prev=x;
+                                 z->next= x->next;
+                                 x->next=z;
+
+                                //continue to compare 
+
+                                while(z->next!=nullptr) {
+
+                                 x=z->next;
+                                 //z->x;
+
+                                }
+
+                                //case 2-2 if x is the first element in the hash table
+
+                                if(x->prev==nullptr) {
+
+                                z->prev=x;  
+                                x->next=z;
+                                z->prev=x;
+                                z->next=nullptr;
+
+
+                                inserted=true;
+                                }
+                 
+
+
+                             }// end of case 2  z > x
+
+                    // catch repeated insert base on phone number; 
+                    if(z->phone == x->phone && inserted==false) {
+                        //setting up the first element in the linked list
+                        //just try to exit the loop for true statement here:
+                        inserted=true;
+                        cout<<"failure"<< endl;
+
+                        }
+                        if(inserted==true) {
+                            cleanptr(x);
+                            cleanptr(z);   
+                        }
+
+                    
+                    }//end of hash space not empty.
+
+        }//end of if hashtvin-> next!=nullptr;
+
+
+      }
+
+ }
+
+//printing the entire chain of an entry in the hash table, i is the index of the hash table
+void hasht::print(long i) {
+
+    //set up poiners to loop through a chain. 
+
+     info* currentp= &hashtv[i];
+     
+     //the smallest number is to be place in the previous element, printing from the smallest to the largest
+      //if the hash has something in it:
+     if(hashtv[i].phone!=0) {
+
+            //starting from the smallest element:
+
+            while (currentp->prev!=nullptr) {
+
+                currentp=currentp->prev;
+       
+             } 
+
+                //first element print:
+
+                 cout<< currentp->phone <<" ";
+                // starting the next element and print successive ones. a "do while" 
+                currentp= currentp->next;
+
+                int kkk= 0;
+
+                //continue to print elements after the current pointer
+                while (currentp!= nullptr && hashtv[i].phone!=0) {
+                    kkk++;
+            
+                    cout<< currentp->phone <<" "; 
+                
+                    //go to the next chain
+                    currentp= currentp->next;
+
+
+        }
+  
+            
+         
+
+     }
+
+
+
+
+
+        cleanptr(currentp);
+
+
+}
+
+
+
+
+
